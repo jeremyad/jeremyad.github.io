@@ -96,7 +96,8 @@ var getEitcBrackets = function(filingStatus, numDependents) {
     numDependents = 3
   }
 
-  var result = EITC_RATES_2017[numDependents].slice();
+  var result = deepCopy(EITC_RATES_2017[numDependents]);
+
   if (filingStatus == "mfj") {
     // Extra $5000 of plateau for married couples.
     result[2][0] += 5000;
@@ -426,6 +427,10 @@ var getSection8Brackets = function(filingStatus, numDependents) {
 // UTILITY FUNCTIONS
 // =================
 
+var deepCopy = function(brackets) {
+  return JSON.parse(JSON.stringify(brackets));
+}
+
 /**
  * Adds two bracket structures together.
  *
@@ -632,7 +637,7 @@ var calculateMarginalRates = function(year,
                                       incomeCategory,
                                       othersToInclude) {
   var rateClass = incomeCategory == "capital" ? "capital" : "ordinary";
-  var result = BASE_RATES[year][rateClass][filingStatus].slice();
+  var result = deepCopy(BASE_RATES[year][rateClass][filingStatus]);
 
   // Anything based on taxable income goes here.
 
@@ -651,7 +656,8 @@ var calculateMarginalRates = function(year,
   }
 
   if (incomeCategory != "wages") {
-    result = addBrackets(result, OBAMACARE_SURTAX_BRACKETS[filingStatus]);
+    result = addBrackets(result, 
+                         deepCopy(OBAMACARE_SURTAX_BRACKETS[filingStatus]));
   }
 
   if ($.inArray("eitc", othersToInclude) != -1) {
